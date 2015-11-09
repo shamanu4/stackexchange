@@ -1,0 +1,46 @@
+R1# sh ip cef vrf nat 0.0.0.0/0 internal
+0.0.0.0/0, epoch 3, flags rib only nolabel, rib defined all labels, RIB[B], refcount 7, per-destination sharing
+  sources: RIB, D/N, DRH
+  feature space:
+   NetFlow: Origin AS 0, Peer AS 0, Mask Bits 0
+   Broker: linked
+   IPRM: 0x00018000
+  subblocks:
+   DefNet source: 0.0.0.0/0
+  ifnums:
+   Vlan3225(231): 10.30.225.225
+   Vlan3227(232): 10.30.227.227
+   Vlan3228(233): 10.30.228.228
+  path 541B7858, path list 53E3E0D8, share 1/1, type recursive nexthop, for IPv4, flags resolved
+  recursive via 10.30.225.225[IPv4:nat], fib 5496C804, 1 terminal fib
+    path 541B7BF8, path list 53E3E170, share 1/1, type adjacency prefix, for IPv4
+    attached to Vlan3225, adjacency IP adj out of Vlan3225, addr 10.30.225.225 513F6B60
+  path 541B78CC, path list 53E3E0D8, share 1/1, type recursive nexthop, for IPv4, flags resolved
+  recursive via 10.30.227.227[IPv4:nat], fib 54969B7C, 1 terminal fib
+    path 541B7B10, path list 53E3E08C, share 1/1, type adjacency prefix, for IPv4
+    attached to Vlan3227, adjacency IP adj out of Vlan3227, addr 10.30.227.227 513F66E0
+  path 541B7DC8, path list 53E3E0D8, share 1/1, type recursive nexthop, for IPv4, flags resolved
+  recursive via 10.30.228.228[IPv4:nat], fib 54970EAC, 1 terminal fib
+    path 541B79B4, path list 53E3E040, share 1/1, type adjacency prefix, for IPv4
+    attached to Vlan3228, adjacency IP adj out of Vlan3228, addr 10.30.228.228 513F6560
+  output chain:
+    loadinfo 51283B80, per-session, 3 choices, flags 0003, 5 locks
+    flags: Per-session, for-rx-IPv4
+    15 hash buckets
+      < 0 > IP adj out of Vlan3225, addr 10.30.225.225 513F6B60
+      < 1 > IP adj out of Vlan3227, addr 10.30.227.227 513F66E0
+      < 2 > IP adj out of Vlan3228, addr 10.30.228.228 513F6560
+      < 3 > IP adj out of Vlan3225, addr 10.30.225.225 513F6B60
+      < 4 > IP adj out of Vlan3227, addr 10.30.227.227 513F66E0
+      < 5 > IP adj out of Vlan3228, addr 10.30.228.228 513F6560
+      < 6 > IP adj out of Vlan3225, addr 10.30.225.225 513F6B60
+      < 7 > IP adj out of Vlan3227, addr 10.30.227.227 513F66E0
+      < 8 > IP adj out of Vlan3228, addr 10.30.228.228 513F6560
+      < 9 > IP adj out of Vlan3225, addr 10.30.225.225 513F6B60
+      <10 > IP adj out of Vlan3227, addr 10.30.227.227 513F66E0
+      <11 > IP adj out of Vlan3228, addr 10.30.228.228 513F6560
+      <12 > IP adj out of Vlan3225, addr 10.30.225.225 513F6B60
+      <13 > IP adj out of Vlan3227, addr 10.30.227.227 513F66E0
+      <14 > IP adj out of Vlan3228, addr 10.30.228.228 513F6560
+    Subblocks:
+     None
