@@ -1,0 +1,33 @@
+R1# sh ip bgp vpnv4 vrf nat 0.0.0.0
+
+Paths: (6 available, best #5, table nat)
+Multipath: eiBGP
+  Advertised to update-groups:
+     2         
+  65000
+    10.30.227.227 from 10.30.227.227 (10.30.227.227)
+      Origin IGP, localpref 100, valid, external, multipath
+      Extended Community: RT:192.168.33.4:13
+      DMZ-Link Bw 250 kbytes
+  65000, (received-only)
+    10.30.227.227 from 10.30.227.227 (10.30.227.227)
+      Origin IGP, localpref 100, valid, external
+      DMZ-Link Bw 250 kbytes
+  65000
+    10.30.228.228 from 10.30.228.228 (10.30.228.228)
+      Origin IGP, localpref 100, valid, external, multipath
+      Extended Community: RT:192.168.33.4:13
+      DMZ-Link Bw 375 kbytes
+  65000, (received-only)
+    10.30.228.228 from 10.30.228.228 (10.30.228.228)
+      Origin IGP, localpref 100, valid, external
+      DMZ-Link Bw 375 kbytes
+  65000
+    10.30.225.225 from 10.30.225.225 (10.30.225.225)
+      Origin IGP, localpref 100, valid, external, multipath, best
+      Extended Community: RT:192.168.33.4:13
+      DMZ-Link Bw 125 kbytes
+  65000, (received-only)
+    10.30.225.225 from 10.30.225.225 (10.30.225.225)
+      Origin IGP, localpref 100, valid, external
+      DMZ-Link Bw 125 kbytes

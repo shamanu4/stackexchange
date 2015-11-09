@@ -1,0 +1,9 @@
+R1# sh ip bgp vpnv4 vrf nat
+Status codes: s suppressed, d damped, h history, * valid, > best, i - internal,
+              r RIB-failure, S Stale
+Origin codes: i - IGP, e - EGP, ? - incomplete
+
+   Network          Next Hop            Metric LocPrf Weight Path
+*  0.0.0.0          10.30.227.227                          0 65000 i
+*                   10.30.228.228                          0 65000 i
+*>                  10.30.225.225                          0 65000 i
