@@ -1,0 +1,47 @@
+
+    For address family: IPv4 Unicast
+    BGP router identifier X.X.X.129, local AS number 41096
+    BGP table version is 22283352, main routing table version 22283352
+    34749 network entries using 4065633 bytes of memory
+    61661 path entries using 3206372 bytes of memory
+    8119/5337 BGP path/bestpath attribute entries using 1299040 bytes of memory
+    3752 BGP AS-PATH entries using 155474 bytes of memory
+    2990 BGP community entries using 138266 bytes of memory
+    146 BGP extended community entries using 5168 bytes of memory
+    53 BGP route-map cache entries using 1696 bytes of memory
+    0 BGP filter-list cache entries using 0 bytes of memory
+    BGP using 8871649 total bytes of memory
+    BGP activity 4716897/4682147 prefixes, 11331539/11269872 paths, scan interval 60 secs
+
+    # Here are bgp neighbours from global routing table. Not relevant to the question. IP addresses are hidden
+
+    Neighbor     V       AS    MsgRcvd   MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+    X.X.X.1      4       XX219    791704  760380 22283352    0    0 6d17h           1
+    X.X.X.33     4       XX219 112902498 1315655 22283352    0    0 6d17h           0
+    X.X.X.238    4       XX772    801422  762830 22283352    0    0 2w5d            0
+    X.X.X.206    4       XX540   2886112 1313917 22283352    0    0 4w4d         9641
+    X.X.X.70     4       XX772 188343075 1313853 22283352    0    0 6d14h       25881
+    X.X.X.78     4       XX772 148265282  941127 22283352    0    0 2w6d        26098
+
+    # Here are neighbours for vrf nat.
+
+    For address family: VPNv4 Unicast
+    BGP router identifier X.X.X.129, local AS number 41096
+    BGP table version is 824, main routing table version 824
+    1 network entries using 137 bytes of memory
+    6 path entries using 408 bytes of memory
+    1 multipath network entries and 3 multipath paths
+    8119/1 BGP path/bestpath attribute entries using 1299040 bytes of memory
+    3752 BGP AS-PATH entries using 155474 bytes of memory
+    2990 BGP community entries using 138266 bytes of memory
+    146 BGP extended community entries using 5168 bytes of memory
+    53 BGP route-map cache entries using 1696 bytes of memory
+    0 BGP filter-list cache entries using 0 bytes of memory
+    BGP using 1600189 total bytes of memory
+    3 received paths for inbound soft reconfiguration
+    BGP activity 4716897/4682147 prefixes, 11331539/11269872 paths, scan interval 15 secs
+
+    Neighbor        V          AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+    10.30.225.225   4       65000   11003   11443      824    0    0 3d18h           1
+    10.30.227.227   4       65000    9853   10293      824    0    0 3d18h           1
+    10.30.228.228   4       65000   10992   11432      824    0    0 3d18h           1

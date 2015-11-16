@@ -1,0 +1,1431 @@
+
+Building configuration...
+
+Current configuration : 903592 bytes
+!
+! Last configuration change at 01:21:52 EET Mon Nov 16 2015 by ...
+! NVRAM config last updated at 18:17:52 EET Sat Nov 7 2015 by ...
+!
+version 12.2
+service timestamps debug datetime localtime
+service timestamps log datetime localtime
+service password-encryption
+service sequence-numbers
+service counters max age 5
+service unsupported-transceiver
+!
+hostname R1
+!
+boot-start-marker
+boot system disk1:s72033-adventerprisek9_wan-mz.122-33.SXJ4.bin
+boot-end-marker
+!
+security passwords min-length 1
+enable secret ...
+!
+username ...
+aaa new-model
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone EET 2
+clock summer-time EEST recurring last Sun Mar 2:00 last Sun Oct 3:00
+ip routing protocol purge interface
+no ip rcmd domain-lookup
+!
+!
+!
+ip cef accounting load-balance-hash
+ip vrf local
+ rd 192.168.33.4:100
+ route-target export 192.168.33.4:100
+!
+ip vrf mirror
+ rd 192.168.33.4:200
+ route-target export 192.168.33.4:200
+!
+ip vrf nat
+ rd 192.168.33.4:13
+ route-target export 192.168.33.4:13
+!
+ip ssh version 2
+ip domain-name bgp.6500
+ip sla 1
+ icmp-echo X.X.X.X
+ timeout 1000
+ frequency 3
+ip sla schedule 1 life forever start-time now
+ip sla 2
+ icmp-echo Y.Y.Y.Y
+ timeout 1000
+ frequency 3
+ip sla schedule 2 life forever start-time now
+vtp domain rehab
+vtp mode transparent
+no mls acl tcam share-global
+mls aging fast time 3
+mls aging long 120
+mls aging normal 32
+mls netflow interface
+mls netflow usage notify 80 300
+mls flow ip interface-destination-source
+mls nde sender version 5
+mls qos
+no mls verify ip checksum
+mls cef error action reset
+mls mpls enable
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+no power enable module 3
+!
+no power enable module 9
+diagnostic bootup level minimal
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+errdisable recovery cause security-violation
+errdisable recovery cause channel-misconfig
+errdisable recovery cause pagp-flap
+errdisable recovery cause dtp-flap
+errdisable recovery cause link-flap
+errdisable recovery cause gbic-invalid
+errdisable recovery cause l2ptguard
+errdisable recovery cause psecure-violation
+errdisable recovery cause dhcp-rate-limit
+errdisable recovery cause unicast-flood
+errdisable recovery cause vmps
+errdisable recovery cause storm-control
+errdisable recovery cause arp-inspection
+errdisable recovery cause loopback
+errdisable recovery interval 30
+!
+redundancy
+ main-cpu
+  auto-sync running-config
+ mode sso
+!
+ip access-list standard DDDDDDD-gw
+ permit C.C.128.33
+ip access-list standard DDDDDDD-net
+ permit X.X.71.0 0.0.0.255
+ip access-list standard WWWW-net
+ permit X.X.72.0 0.0.0.255
+!
+ip access-list extended ALL_TRAF
+ permit ip any any
+ip access-list extended ALL_TRAFF
+ permit ip any any
+ip access-list extended HTTP_EST
+ permit tcp any eq www any established
+ip access-list extended HTTP_SYN_ACK
+ permit tcp any eq www any ack syn
+ip access-list extended HTTP_TRAF
+ permit tcp any eq www any
+ip access-list extended INPUT_ACL
+ deny   udp any host Y.Y.104.4 eq ntp
+ permit udp any any eq ntp
+ permit udp any X.X.64.0 0.0.31.255 eq domain
+ip access-list extended TCP_SYN_ACK
+ permit tcp any eq www any
+ip access-list extended UDP_SRC_1900
+ permit udp any eq 1900 any
+ permit udp any eq ntp any
+!
+!
+vlan access-map HTTP_ONLY_MAP 10
+ match ip address HTTP_EST
+ action forward capture
+vlan access-map HTTP_ONLY_MAP 20
+ match ip address HTTP_SYN_ACK
+ action forward
+!
+vlan access-map ALL_MAP 5
+ match ip address UDP_SRC_1900
+ action drop
+vlan access-map ALL_MAP 10
+ match ip address ALL_TRAF
+ action forward capture
+!
+vlan filter HTTP_ONLY_MAP vlan-list  716
+vlan filter ALL_MAP vlan-list  709,1451-1452
+vlan internal allocation policy ascending
+vlan access-log ratelimit 2000
+!
+vlan 2-3,15,30-33,101,186,247,340,390,433,449,453,472,516,528,538,560-565
+!
+vlan 568,570-571,574-576,598,600-607,617,666,680,700-735,929,932,940-941
+!
+vlan 1077,1088-1089,1132,1451-1452,2310-2311,3225,3227-3228
+!
+vlan 3900
+ remote-span
+!
+track 11 ip sla 1 reachability
+ delay down 10 up 5
+!
+track 22 ip sla 2 reachability
+ delay down 10 up 5
+!
+!
+!
+!
+!
+interface Port-channel1
+ description Core-8G-trunk.1
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+!
+interface Port-channel2
+ description UA-IX 2G(1)
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 3001
+ switchport mode trunk
+!
+interface Port-channel3
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+!
+interface Port-channel4
+ description NAT-7 netint
+ switchport
+ switchport access vlan 33
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33
+ switchport mode trunk
+!
+interface Port-channel5
+ description NAT-8 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3228
+ switchport mode trunk
+ bandwidth inherit 1000
+!
+interface Port-channel6
+ description NAT-8 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+!
+interface Port-channel7
+ description NAT-5 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3225
+ switchport mode trunk
+!
+interface Port-channel8
+ description NAT-5 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+!
+interface Port-channel9
+ description NAT-7 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3227
+ switchport mode trunk
+!
+interface Port-channel10
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+!
+interface Port-channel11
+ description Core-20G-trunk
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1-3,30-33,101,186,247,340,390,433,449,453,472
+ switchport trunk allowed vlan add 516,528,538,560-565,568,570,571,574-576,598
+ switchport trunk allowed vlan add 600-607,617,666,680,700-735,929,932,940,941
+ switchport trunk allowed vlan add 1077,1088,2310,2311,3225,3227,3228,3900
+ switchport mode trunk
+!
+interface GigabitEthernet1/1
+ description NAT-8 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3228
+ switchport mode trunk
+ channel-group 5 mode active
+!
+interface GigabitEthernet1/2
+ description NAT-8 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3228
+ switchport mode trunk
+ channel-group 5 mode active
+!
+interface GigabitEthernet1/3
+ description NAT-8 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3228
+ switchport mode trunk
+ channel-group 5 mode active
+!
+interface GigabitEthernet1/4
+ description NAT-8 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3228
+ switchport mode trunk
+ channel-group 5 mode active
+!
+interface GigabitEthernet1/5
+ description NAT-8 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 6 mode active
+!
+interface GigabitEthernet1/6
+ description NAT-8 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 6 mode active
+!
+interface GigabitEthernet1/7
+ description NAT-8 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 6 mode active
+!
+interface GigabitEthernet1/8
+ description NAT-8 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 6 mode active
+!
+interface GigabitEthernet1/9
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/10
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/11
+ description NAT-110 INT
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 3,30,33
+ switchport mode trunk
+!
+interface GigabitEthernet1/12
+ description NAT-110 EXT
+ switchport
+ switchport access vlan 528
+ switchport mode access
+!
+interface GigabitEthernet1/13
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 3 mode active
+!
+interface GigabitEthernet1/14
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 3 mode active
+!
+interface GigabitEthernet1/15
+ description NAT-7 netint
+ switchport
+ switchport access vlan 33
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33
+ switchport mode trunk
+ channel-group 4 mode active
+!
+interface GigabitEthernet1/16
+ description NAT-7 netint
+ switchport
+ switchport access vlan 33
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33
+ switchport mode trunk
+ channel-group 4 mode active
+!
+interface TenGigabitEthernet2/1
+ description nexus 10g test
+ switchport
+ switchport trunk allowed vlan 15
+ switchport mode access
+!
+interface TenGigabitEthernet3/1
+ description 10G-DDDDDDD-trunk
+ switchport
+ switchport trunk allowed vlan 1,561,601-607,2310,2311
+ switchport mode trunk
+!
+interface GigabitEthernet4/1
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/2
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/3
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/4
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/5
+ description UA-IX
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 940
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/6
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/7
+ description WORLD
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 340,1088
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet4/8
+ description DDDDDDD-Word
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ flowcontrol send off
+!
+interface GigabitEthernet4/9
+ description DDDDDDD-UA-IX
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 3001
+ switchport mode trunk
+ channel-group 2 mode on
+!
+interface GigabitEthernet4/10
+ description DDDDDDD-UA-IX
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 3001
+ switchport mode trunk
+ channel-group 2 mode on
+!
+interface GigabitEthernet4/11
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+!
+interface GigabitEthernet4/12
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+!
+interface GigabitEthernet4/13
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+!
+interface GigabitEthernet4/14
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+!
+interface GigabitEthernet4/15
+ no ip address
+ shutdown
+!
+interface GigabitEthernet4/16
+ no ip address
+ shutdown
+!
+interface TenGigabitEthernet5/1
+ description 10G-YYY-trunk
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 340,940,1088,1089
+ switchport mode trunk
+!
+interface TenGigabitEthernet5/2
+ description 10G-XXX-trunk
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1,561,601-607,1451,1452,2310,2311
+ switchport mode trunk
+!
+interface TenGigabitEthernet5/3
+ description Core-8G-trunk.2(Te1/3)
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1-3,30-33,101,186,247,340,390,433,449,453,472
+ switchport trunk allowed vlan add 516,528,538,560-565,568,570,571,574-576,598
+ switchport trunk allowed vlan add 600-607,617,666,680,700-735,929,932,940,941
+ switchport trunk allowed vlan add 1077,1088,2310,2311,3225,3227,3228,3900
+ switchport mode trunk
+ channel-group 11 mode desirable
+!
+interface TenGigabitEthernet5/4
+ description Core-8G-trunk.2(Te1/4)
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1-3,30-33,101,186,247,340,390,433,449,453,472
+ switchport trunk allowed vlan add 516,528,538,560-565,568,570,571,574-576,598
+ switchport trunk allowed vlan add 600-607,617,666,680,700-735,929,932,940,941
+ switchport trunk allowed vlan add 1077,1088,2310,2311,3225,3227,3228,3900
+ switchport mode trunk
+ channel-group 11 mode desirable
+!
+interface GigabitEthernet6/1
+ no ip address
+ shutdown
+!
+interface GigabitEthernet6/2
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/1
+ description NAT-7 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3227
+ switchport mode trunk
+ channel-group 9 mode active
+!
+interface GigabitEthernet7/2
+ description NAT-7 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3227
+ switchport mode trunk
+ channel-group 9 mode active
+!
+interface GigabitEthernet7/3
+ description NAT-7 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3227
+ switchport mode trunk
+ channel-group 9 mode active
+!
+interface GigabitEthernet7/4
+ description NAT-7 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3227
+ switchport mode trunk
+ channel-group 9 mode active
+!
+interface GigabitEthernet7/5
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 10 mode active
+!
+interface GigabitEthernet7/6
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 10 mode active
+!
+interface GigabitEthernet7/7
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 10 mode active
+!
+interface GigabitEthernet7/8
+ description NAT-7 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 10 mode active
+!
+interface GigabitEthernet7/9
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/10
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/11
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/12
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/13
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/14
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/15
+ no ip address
+ shutdown
+!
+interface GigabitEthernet7/16
+ description vl-710-mirror-src-port-80
+ switchport
+ switchport capture allowed vlan 710
+!
+interface GigabitEthernet8/1
+ description NAT-5 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3225
+ switchport mode trunk
+ channel-group 7 mode active
+!
+interface GigabitEthernet8/2
+ description NAT-5 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3225
+ switchport mode trunk
+ channel-group 7 mode active
+!
+interface GigabitEthernet8/3
+ description NAT-5 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3225
+ switchport mode trunk
+ channel-group 7 mode active
+!
+interface GigabitEthernet8/4
+ description NAT-5 netint
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 30,31,33,3225
+ switchport mode trunk
+ channel-group 7 mode active
+!
+interface GigabitEthernet8/5
+ description NAT-5 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 8 mode active
+!
+interface GigabitEthernet8/6
+ description NAT-5 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 8 mode active
+!
+interface GigabitEthernet8/7
+ description NAT-5 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 8 mode active
+!
+interface GigabitEthernet8/8
+ description NAT-5 netext
+ switchport
+ switchport access vlan 528
+ switchport mode access
+ channel-group 8 mode active
+!
+interface GigabitEthernet8/9
+ no ip address
+ shutdown
+!
+interface GigabitEthernet8/10
+ no ip address
+ shutdown
+!
+interface GigabitEthernet8/11
+ no ip address
+ shutdown
+!
+interface GigabitEthernet8/12
+ no ip address
+ shutdown
+!
+interface GigabitEthernet8/13
+ no ip address
+ shutdown
+!
+interface GigabitEthernet8/14
+ description multicast -> 33.195
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 1451,1452
+ switchport mode trunk
+!
+interface GigabitEthernet8/15
+ description mikrotik.gw(X.X.68.58)
+ switchport
+ switchport access vlan 680
+ switchport mode access
+!
+interface GigabitEthernet8/16
+ description Netflow monitor 716/709
+ switchport
+ switchport capture allowed vlan 716
+!
+interface GigabitEthernet9/1
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/2
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/3
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/4
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/5
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/6
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/7
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/8
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/9
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/10
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/11
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/12
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/13
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/14
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/15
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet9/16
+ switchport
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan none
+ switchport mode trunk
+ shutdown
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan2
+ ip address Y.Y.104.2 255.255.255.240
+!
+interface Vlan3
+ description Management
+ ip address 10.10.3.22 255.255.255.0
+!
+interface Vlan6
+ ip address 10.10.6.222 255.255.255.0
+!
+interface Vlan15
+ ip address 192.168.15.150 255.255.255.0
+!
+interface Vlan30
+ ip vrf forwarding nat
+ ip address 10.30.0.10 255.255.255.0 secondary
+ ip address 10.30.0.22 255.255.255.0
+ no ip redirects
+!
+interface Vlan31
+ ip vrf forwarding local
+ ip address 10.31.0.4 255.255.255.0
+!
+interface Vlan32
+ ip address 10.32.0.22 255.255.255.0
+ ip policy route-map NAT
+!
+interface Vlan33
+ ip address 192.168.33.4 255.255.255.0
+ ip policy route-map UPLINK-TEST-GW
+!
+interface Vlan101
+ description WWWW world
+ no ip address
+!
+interface Vlan310
+ no ip address
+ shutdown
+!
+interface Vlan340
+ description WWWW backup
+ ip address K.K.176.74 255.255.255.248
+ ip flow ingress
+ ip policy route-map INPUT_FILTER
+!
+interface Vlan528
+ ip address Y.Y.107.161 255.255.255.224 secondary
+ ip address Y.Y.105.129 255.255.255.224
+ no ip redirects
+!
+interface Vlan600
+ ip address Y.Y.106.4 255.255.255.0
+ shutdown
+!
+interface Vlan680
+ ip address X.X.68.62 255.255.255.224
+!
+interface Vlan709
+ description anti-ddos
+ ip vrf forwarding local
+ ip address 10.70.9.4 255.255.255.0
+!
+interface Vlan710
+ description tar-school
+ ip vrf forwarding local
+ ip address 10.70.10.4 255.255.255.0
+!
+interface Vlan711
+ description tar-school-plus
+ ip vrf forwarding local
+ ip address 10.70.11.4 255.255.255.0
+!
+interface Vlan712
+ description tar-stud
+ ip vrf forwarding local
+ ip address 10.70.12.4 255.255.255.0
+!
+interface Vlan713
+ description tar-premium
+ ip vrf forwarding local
+ ip address 10.70.13.4 255.255.255.0
+!
+interface Vlan714
+ description tar-optic-standard
+ ip vrf forwarding local
+ ip address 10.70.14.4 255.255.255.0
+!
+interface Vlan715
+ description tar-optic-maximum
+ ip vrf forwarding local
+ ip address 10.70.15.4 255.255.255.0
+!
+interface Vlan716
+ description blackhole-squid
+ ip vrf forwarding local
+ ip address 10.70.16.4 255.255.255.0
+!
+interface Vlan717
+ description tar-optic-x2
+ ip vrf forwarding local
+ ip address 10.70.17.4 255.255.255.0
+!
+interface Vlan718
+ no ip address
+!
+interface Vlan940
+ description WWWW ua-ix
+ ip address G.G.K.K3 255.255.255.248
+ ip flow ingress
+!
+interface Vlan1077
+ description XEN-NON-TIM
+ ip address Y.Y.107.17 255.255.255.240
+!
+interface Vlan1088
+ description WWWW-World
+ ip address K.K.176.69 255.255.255.248
+ ip flow ingress
+ ip policy route-map INPUT_FILTER
+!
+interface Vlan1089
+ description WWWW anti DDoS
+ ip address F.F.168.237 255.255.255.252
+ ip flow ingress
+!
+interface Vlan1451
+ description Multicast Digital-Screens
+ no ip address
+ shutdown
+!
+interface Vlan1452
+ no ip address
+!
+interface Vlan2310
+ description DDDDDDD anti DDoS
+ ip address H.H.131.2 255.255.255.252
+ ip flow ingress
+!
+interface Vlan2311
+ description DDDDDDD world
+ ip address C.C.128.35 255.255.255.248
+ ip flow ingress
+ ip policy route-map INPUT_FILTER
+!
+interface Vlan3225
+ description nat-225-bgp
+ bandwidth 100000
+ ip vrf forwarding nat
+ ip address 10.30.225.22 255.255.255.0
+!
+interface Vlan3227
+ description nat-227-bgp
+ bandwidth 150000
+ ip vrf forwarding nat
+ ip address 10.30.227.22 255.255.255.0
+ no ip route-cache
+!
+interface Vlan3228
+ description nat-228-bgp
+ ip vrf forwarding nat
+ ip address 10.30.228.22 255.255.255.0
+ no ip route-cache
+!
+router bgp 100
+ no synchronization
+ bgp router-id Y.Y.105.129
+ bgp log-neighbor-changes
+ bgp bestpath as-path multipath-relax
+ network X.X.64.0 mask 255.255.224.0
+ network X.X.64.0 mask 255.255.255.0
+ network X.X.65.0 mask 255.255.255.0
+ network X.X.66.0 mask 255.255.255.0
+ network X.X.67.0 mask 255.255.255.0
+ network X.X.68.0 mask 255.255.255.0
+ network X.X.69.0 mask 255.255.255.0
+ network X.X.70.0 mask 255.255.255.0
+ network X.X.71.0 mask 255.255.255.0
+ network X.X.72.0 mask 255.255.255.0
+ network X.X.73.0 mask 255.255.255.0
+ network X.X.74.0 mask 255.255.255.0
+ network X.X.75.0 mask 255.255.255.0
+ network X.X.76.0 mask 255.255.255.0
+ network X.X.77.0 mask 255.255.255.0
+ network X.X.78.0 mask 255.255.255.0
+ network X.X.79.0 mask 255.255.255.0
+ network X.X.80.0 mask 255.255.255.0
+ network X.X.81.0 mask 255.255.255.0
+ network X.X.82.0 mask 255.255.255.0
+ network X.X.83.0 mask 255.255.255.0
+ network X.X.84.0 mask 255.255.255.0
+ network X.X.85.0 mask 255.255.255.0
+ network X.X.86.0 mask 255.255.255.0
+ network X.X.87.0 mask 255.255.255.0
+ network X.X.88.0 mask 255.255.255.0
+ network X.X.89.0 mask 255.255.255.0
+ network X.X.90.0 mask 255.255.255.0
+ network X.X.91.0 mask 255.255.255.0
+ network X.X.92.0 mask 255.255.255.0
+ network X.X.93.0 mask 255.255.255.0
+ network X.X.94.0 mask 255.255.255.0
+ network X.X.95.0 mask 255.255.255.0
+ network Y.Y.104.0 mask 255.255.252.0
+ network Y.Y.104.0
+ network Y.Y.105.0
+ network Y.Y.106.0
+ network Y.Y.107.0
+ redistribute static route-map static-to-blackhole
+ neighbor H.H.131.1 remote-as ZZZ19
+ neighbor H.H.131.1 description DDDDDDD anti DDoS
+ neighbor H.H.131.1 update-source Vlan2310
+ neighbor H.H.131.1 send-community
+ neighbor H.H.131.1 default-originate
+ neighbor H.H.131.1 prefix-list DDOS-LIST out
+ neighbor H.H.131.1 route-map DDDDDDD-DDOS-IN in
+ neighbor H.H.131.1 route-map DDDDDDD-DDOS-OUT out
+ neighbor C.C.128.33 remote-as ZZZ19
+ neighbor C.C.128.33 description DDDDDDD-WORLD
+ neighbor C.C.128.33 update-source Vlan2311
+ neighbor C.C.128.33 next-hop-self
+ neighbor C.C.128.33 send-community
+ neighbor C.C.128.33 default-originate
+ neighbor C.C.128.33 prefix-list AS100-DDDDDDD out
+ neighbor C.C.128.33 route-map DDDDDDD-IN in
+ neighbor C.C.128.33 route-map DDDDDDD-OUT out
+ neighbor F.F.168.238 remote-as SSS72
+ neighbor F.F.168.238 description WWWW anti DDoS
+ neighbor F.F.168.238 update-source Vlan1089
+ neighbor F.F.168.238 send-community
+ neighbor F.F.168.238 default-originate
+ neighbor F.F.168.238 prefix-list DDOS-LIST out
+ neighbor F.F.168.238 route-map WWWW-DDOS-IN in
+ neighbor F.F.168.238 route-map WWWW-DDOS-OUT out
+ neighbor G.G.K.K6 remote-as DDD40
+ neighbor G.G.K.K6 description WWWW-UA
+ neighbor G.G.K.K6 update-source Vlan940
+ neighbor G.G.K.K6 next-hop-self
+ neighbor G.G.K.K6 send-community
+ neighbor G.G.K.K6 prefix-list AS100-WWWW out
+ neighbor G.G.K.K6 route-map WWWW-UA-IN in
+ neighbor G.G.K.K6 route-map WWWW-UA-OUT out
+ neighbor K.K.176.70 remote-as SSS72
+ neighbor K.K.176.70 description WWWW-WORLD
+ neighbor K.K.176.70 update-source Vlan1088
+ neighbor K.K.176.70 next-hop-self
+ neighbor K.K.176.70 send-community
+ neighbor K.K.176.70 default-originate
+ neighbor K.K.176.70 prefix-list AS100-WWWW out
+ neighbor K.K.176.70 route-map WWWW-IN in
+ neighbor K.K.176.70 route-map WWWW-OUT out
+ neighbor K.K.176.78 remote-as SSS72
+ neighbor K.K.176.78 description WWWW-BACKUP
+ neighbor K.K.176.78 update-source Vlan340
+ neighbor K.K.176.78 next-hop-self
+ neighbor K.K.176.78 send-community
+ neighbor K.K.176.78 prefix-list AS100-WWWW out
+ neighbor K.K.176.78 route-map WWWW-BACKUP-IN in
+ neighbor K.K.176.78 route-map WWWW-BACKUP-OUT out
+ default-information originate
+ no auto-summary
+ !
+ address-family ipv4 vrf nat
+  neighbor 10.30.225.225 remote-as 65000
+  neighbor 10.30.225.225 update-source Vlan3225
+  neighbor 10.30.225.225 activate
+  neighbor 10.30.225.225 send-community both
+  neighbor 10.30.225.225 soft-reconfiguration inbound
+  neighbor 10.30.225.225 route-map NAT-IN in
+  neighbor 10.30.225.225 route-map NAT-OUT out
+  neighbor 10.30.225.225 dmzlink-bw
+  neighbor 10.30.227.227 remote-as 65000
+  neighbor 10.30.227.227 update-source Vlan3227
+  neighbor 10.30.227.227 activate
+  neighbor 10.30.227.227 send-community both
+  neighbor 10.30.227.227 soft-reconfiguration inbound
+  neighbor 10.30.227.227 route-map NAT-IN in
+  neighbor 10.30.227.227 route-map NAT-OUT out
+  neighbor 10.30.227.227 dmzlink-bw
+  neighbor 10.30.228.228 remote-as 65000
+  neighbor 10.30.228.228 update-source Vlan3228
+  neighbor 10.30.228.228 activate
+  neighbor 10.30.228.228 send-community both
+  neighbor 10.30.228.228 soft-reconfiguration inbound
+  neighbor 10.30.228.228 route-map NAT-IN in
+  neighbor 10.30.228.228 route-map NAT-OUT out
+  neighbor 10.30.228.228 dmzlink-bw
+  maximum-paths 5
+  no synchronization
+  bgp router-id auto-assign
+ exit-address-family
+!
+ip default-gateway 10.10.6.1
+ip classless
+ip forward-protocol nd
+ip route 0.0.0.0 0.0.0.0 C.C.128.33 6 track 11
+ip route 0.0.0.0 0.0.0.0 K.K.176.70 8 track 22
+ip route 0.0.0.0 0.0.0.0 C.C.128.33 10
+!
+ip bgp-community new-format
+ip as-path access-list 1 permit ^$
+ip as-path access-list 1 permit ^[0-9]*$
+ip as-path access-list 1 permit ^[0-9]*_[0-9]*$
+ip as-path access-list 2 permit ^$
+ip as-path access-list 2 permit ^[0-9]*$
+ip as-path access-list 2 permit ^[0-9]*_[0-9]*$
+ip as-path access-list 2 permit ^[0-9]*_[0-9]*_[0-9]*$
+ip as-path access-list 3 permit ^$
+ip as-path access-list 3 permit ^[0-9]*$
+ip as-path access-list 3 permit ^[0-9]*_[0-9]*$
+ip as-path access-list 3 permit ^[0-9]*_[0-9]*_[0-9]*$
+ip as-path access-list 3 permit ^[0-9]*_[0-9]*_[0-9]*_[0-9]*$
+ip as-path access-list 100 permit ^$
+ip flow-export source Vlan33
+ip flow-export version 5
+ip flow-export destination 192.168.33.41 9996
+!
+no ip http server
+no ip http secure-server
+!
+!
+ip prefix-list AS100 seq 5 permit Y.Y.104.0/22
+ip prefix-list AS100 seq 10 permit Y.Y.105.0/24
+ip prefix-list AS100 seq 15 permit Y.Y.106.0/24
+ip prefix-list AS100 seq 20 permit Y.Y.107.0/24
+ip prefix-list AS100 seq 25 permit X.X.64.0/19
+ip prefix-list AS100 seq 30 permit X.X.64.0/24
+ip prefix-list AS100 seq 35 permit X.X.71.0/24
+ip prefix-list AS100 seq 1000 deny 0.0.0.0/0
+!
+ip prefix-list AS100-105 seq 5 permit Y.Y.104.0/22
+ip prefix-list AS100-105 seq 10 permit Y.Y.105.0/24
+ip prefix-list AS100-105 seq 15 permit X.X.64.0/19
+ip prefix-list AS100-105 seq 20 permit X.X.64.0/24
+ip prefix-list AS100-105 seq 25 permit X.X.65.0/24
+ip prefix-list AS100-105 seq 30 deny 0.0.0.0/0
+!
+ip prefix-list AS100-107 seq 5 permit Y.Y.104.0/22
+ip prefix-list AS100-107 seq 10 permit Y.Y.107.0/24
+ip prefix-list AS100-107 seq 15 permit X.X.64.0/19
+ip prefix-list AS100-107 seq 20 permit X.X.64.0/24
+ip prefix-list AS100-107 seq 25 permit X.X.65.0/24
+ip prefix-list AS100-107 seq 30 deny 0.0.0.0/0
+!
+ip prefix-list AS100-176 seq 5 permit X.X.64.0/19
+ip prefix-list AS100-176 seq 10 permit X.X.64.0/24
+ip prefix-list AS100-176 seq 15 permit X.X.65.0/24
+ip prefix-list AS100-176 seq 20 deny 0.0.0.0/0
+!
+ip prefix-list AS100-DDDDDDD seq 5 permit Y.Y.104.0/22
+ip prefix-list AS100-DDDDDDD seq 10 permit Y.Y.105.0/24
+ip prefix-list AS100-DDDDDDD seq 15 permit Y.Y.106.0/24
+ip prefix-list AS100-DDDDDDD seq 20 permit Y.Y.107.0/24
+ip prefix-list AS100-DDDDDDD seq 30 permit X.X.64.0/24
+ip prefix-list AS100-DDDDDDD seq 32 permit X.X.64.0/19
+ip prefix-list AS100-DDDDDDD seq 35 permit X.X.65.0/24
+ip prefix-list AS100-DDDDDDD seq 40 permit X.X.66.0/24
+ip prefix-list AS100-DDDDDDD seq 45 permit X.X.67.0/24
+ip prefix-list AS100-DDDDDDD seq 50 permit X.X.68.0/24
+ip prefix-list AS100-DDDDDDD seq 55 permit X.X.69.0/24
+ip prefix-list AS100-DDDDDDD seq 60 permit X.X.70.0/24
+ip prefix-list AS100-DDDDDDD seq 65 permit X.X.71.0/24
+ip prefix-list AS100-DDDDDDD seq 70 permit X.X.73.0/24
+ip prefix-list AS100-DDDDDDD seq 75 permit X.X.74.0/24
+ip prefix-list AS100-DDDDDDD seq 80 permit X.X.75.0/24
+ip prefix-list AS100-DDDDDDD seq 85 permit X.X.76.0/24
+ip prefix-list AS100-DDDDDDD seq 90 permit X.X.77.0/24
+ip prefix-list AS100-DDDDDDD seq 95 permit X.X.78.0/24
+ip prefix-list AS100-DDDDDDD seq 100 permit X.X.79.0/24
+ip prefix-list AS100-DDDDDDD seq 105 permit X.X.80.0/24
+ip prefix-list AS100-DDDDDDD seq 110 permit X.X.81.0/24
+ip prefix-list AS100-DDDDDDD seq 115 permit X.X.82.0/24
+ip prefix-list AS100-DDDDDDD seq 120 permit X.X.83.0/24
+ip prefix-list AS100-DDDDDDD seq 125 permit X.X.84.0/24
+ip prefix-list AS100-DDDDDDD seq 130 permit X.X.85.0/24
+ip prefix-list AS100-DDDDDDD seq 135 permit X.X.86.0/24
+ip prefix-list AS100-DDDDDDD seq 140 permit X.X.87.0/24
+ip prefix-list AS100-DDDDDDD seq 145 permit X.X.88.0/24
+ip prefix-list AS100-DDDDDDD seq 150 permit X.X.89.0/24
+ip prefix-list AS100-DDDDDDD seq 155 permit X.X.90.0/24
+ip prefix-list AS100-DDDDDDD seq 160 permit X.X.91.0/24
+ip prefix-list AS100-DDDDDDD seq 165 permit X.X.92.0/24
+ip prefix-list AS100-DDDDDDD seq 170 permit X.X.93.0/24
+ip prefix-list AS100-DDDDDDD seq 175 permit X.X.94.0/24
+ip prefix-list AS100-DDDDDDD seq 180 permit X.X.95.0/24
+ip prefix-list AS100-DDDDDDD seq 1000 deny 0.0.0.0/0
+!
+ip prefix-list AS100-WWWW seq 5 permit Y.Y.104.0/22
+ip prefix-list AS100-WWWW seq 8 permit Y.Y.104.0/24
+ip prefix-list AS100-WWWW seq 10 permit Y.Y.105.0/24
+ip prefix-list AS100-WWWW seq 15 permit Y.Y.106.0/24
+ip prefix-list AS100-WWWW seq 20 permit Y.Y.107.0/24
+ip prefix-list AS100-WWWW seq 30 permit X.X.64.0/24
+ip prefix-list AS100-WWWW seq 32 permit X.X.64.0/19
+ip prefix-list AS100-WWWW seq 35 permit X.X.65.0/24
+ip prefix-list AS100-WWWW seq 40 permit X.X.66.0/24
+ip prefix-list AS100-WWWW seq 45 permit X.X.67.0/24
+ip prefix-list AS100-WWWW seq 50 permit X.X.68.0/24
+ip prefix-list AS100-WWWW seq 55 permit X.X.69.0/24
+ip prefix-list AS100-WWWW seq 60 permit X.X.70.0/24
+ip prefix-list AS100-WWWW seq 65 permit X.X.72.0/24
+ip prefix-list AS100-WWWW seq 70 permit X.X.73.0/24
+ip prefix-list AS100-WWWW seq 75 permit X.X.74.0/24
+ip prefix-list AS100-WWWW seq 80 permit X.X.75.0/24
+ip prefix-list AS100-WWWW seq 85 permit X.X.76.0/24
+ip prefix-list AS100-WWWW seq 90 permit X.X.77.0/24
+ip prefix-list AS100-WWWW seq 95 permit X.X.78.0/24
+ip prefix-list AS100-WWWW seq 100 permit X.X.79.0/24
+ip prefix-list AS100-WWWW seq 105 permit X.X.80.0/24
+ip prefix-list AS100-WWWW seq 110 permit X.X.81.0/24
+ip prefix-list AS100-WWWW seq 115 permit X.X.82.0/24
+ip prefix-list AS100-WWWW seq 120 permit X.X.83.0/24
+ip prefix-list AS100-WWWW seq 125 permit X.X.84.0/24
+ip prefix-list AS100-WWWW seq 130 permit X.X.85.0/24
+ip prefix-list AS100-WWWW seq 135 permit X.X.86.0/24
+ip prefix-list AS100-WWWW seq 140 permit X.X.87.0/24
+ip prefix-list AS100-WWWW seq 145 permit X.X.88.0/24
+ip prefix-list AS100-WWWW seq 150 permit X.X.89.0/24
+ip prefix-list AS100-WWWW seq 155 permit X.X.90.0/24
+ip prefix-list AS100-WWWW seq 160 permit X.X.91.0/24
+ip prefix-list AS100-WWWW seq 165 permit X.X.92.0/24
+ip prefix-list AS100-WWWW seq 170 permit X.X.93.0/24
+ip prefix-list AS100-WWWW seq 175 permit X.X.94.0/24
+ip prefix-list AS100-WWWW seq 180 permit X.X.95.0/24
+ip prefix-list AS100-WWWW seq 1000 deny 0.0.0.0/0
+!
+ip prefix-list AS100-WWWW-TEST seq 5 permit X.X.72.0/24
+ip prefix-list AS100-WWWW-TEST seq 10 deny 0.0.0.0/0
+!
+ip prefix-list AS100-no-106 seq 5 permit Y.Y.104.0/22
+ip prefix-list AS100-no-106 seq 10 permit Y.Y.105.0/24
+ip prefix-list AS100-no-106 seq 15 permit Y.Y.107.0/24
+ip prefix-list AS100-no-106 seq 20 permit X.X.64.0/19
+ip prefix-list AS100-no-106 seq 25 permit X.X.64.0/24
+ip prefix-list AS100-no-106 seq 30 permit X.X.65.0/24
+ip prefix-list AS100-no-106 seq 100 deny 0.0.0.0/0
+!
+ip prefix-list DDOS-LIST seq 5 permit X.X.94.1/32
+ip prefix-list DDOS-LIST seq 25 permit X.X.80.223/32
+!
+ip prefix-list noddos seq 5 permit X.X.64.0/19 le 32
+!
+route-map WWWW-BACKUP-IN permit 1000
+ match as-path 1
+!
+route-map UPLINK-TEST-GW permit 100
+ match ip address WWWW-net
+ set ip default next-hop K.K.176.70
+!
+route-map UPLINK-TEST-GW permit 200
+ match ip address DDDDDDD-net
+ set ip next-hop C.C.128.33
+!
+route-map INPUT_FILTER permit 10
+ match ip address INPUT_ACL
+ set interface Null0
+!
+route-map WWWW-DDOS-IN permit 10
+!
+route-map DDDDDDD-UA-OUT permit 1000
+!
+route-map WWWW-UA-IN permit 1000
+ set weight 5000
+!
+route-map DDDDDDD-DDOS-OUT permit 10
+!
+route-map WWWW-IN permit 1000
+ match as-path 1
+!
+route-map WWWW_DDOS-OUT permit 10
+!
+route-map DDDDDDD-OUT permit 1000
+ description ZZZ19:11021
+ set local-preference 1000
+ set community 64712:2 64713:1 64714:2
+!
+route-map mirror-15 permit 10
+ set ip next-hop 10.70.35.1
+!
+route-map mirror-14 permit 10
+ set ip next-hop 10.70.34.1
+!
+route-map BGP-BLACKHOLE permit 5
+ match tag 666
+ set community 0:666
+!
+route-map mirror-11 permit 10
+ set ip next-hop 10.70.31.1
+!
+route-map mirror-10 permit 10
+ set ip next-hop 10.70.30.1
+!
+route-map DDDDDDD-Ua-OUT permit 10
+ set community ZZZ19:22001 ZZZ19:22021 ZZZ19:22031
+!
+route-map mirror-13 permit 10
+ set ip next-hop 10.70.33.1
+!
+route-map mirror-12 permit 10
+ set ip next-hop 10.70.32.1
+!
+route-map NAT-OUT permit 10
+!
+route-map DDDDDDD-IN permit 10
+ match as-path 100
+!
+route-map WWWW-BACKUP-OUT permit 1000
+ set local-preference 1
+ set as-path prepend 100 100 100 100
+!
+route-map WWWW-UA-OUT permit 1000
+ set local-preference 1000
+!
+route-map DDDDDDD-DDOS-IN permit 10
+!
+route-map WWWW-DDOS-OUT permit 10
+!
+route-map NAT permit 10
+ match ip address INTERNAL
+ set vrf nat
+!
+route-map NAT permit 20
+ set tag 1000
+!
+route-map DDDDDDD-UA-IN permit 1000
+ set weight 5000
+!
+route-map WWWW_DDOS-IN permit 10
+!
+route-map DDDDDDD-IN permit 1000
+ match as-path 100
+!
+route-map static-to-blackhole permit 5
+ match tag 7777
+ set community ZZZ19:7777
+!
+route-map static-to-blackhole permit 10
+ match tag 6666
+!
+route-map WWWW-OUT permit 1000
+ set local-preference 1000
+ set as-path prepend 100
+!
+route-map NAT-IN permit 10
+!
+route-map static-to-bgp permit 5
+ match tag 7777
+ set community ZZZ19:7777
+!
+snmp-server engineID local 8000000903000008207FC3A4
+snmp-server community ...
+snmp-server community ...
+snmp-server location ...
+snmp-server contact ...
+!
+!
+control-plane
+!
+!
+dial-peer cor custom
+!
+!
+!
+!
+line con 0
+line vty 0 4
+ session-timeout 1440
+ exec-timeout 1440 0
+line vty 5 15
+ session-timeout 1440
+ exec-timeout 1440 0
+!
+!
+monitor session 4 type rspan-destination
+ source remote vlan 3900
+ destination interface Gi8/16
+!
+!
+ntp master
+ntp update-calendar
+ntp server 192.168.33.125
+mac-address-table static 001b.21b3.27a4 vlan 30 interface Port-channel9
+mac-address-table static 001e.8c5d.1d55 vlan 30 interface GigabitEthernet1/11
+mac-address-table static 7256.f80b.f78b vlan 30 interface Port-channel11
+mac-address-table static a036.9f04.b2ee vlan 30 interface Port-channel7
+mac-address-table static a036.9f04.b334 vlan 30 interface Port-channel5
+!
+end
