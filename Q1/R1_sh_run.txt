@@ -989,19 +989,20 @@ interface Vlan2311
 !
 interface Vlan3225
  description nat-225-bgp
- bandwidth 100000
+ bandwidth 1000000
  ip vrf forwarding nat
  ip address 10.30.225.22 255.255.255.0
 !
 interface Vlan3227
  description nat-227-bgp
- bandwidth 150000
+ bandwidth 1500000
  ip vrf forwarding nat
  ip address 10.30.227.22 255.255.255.0
  no ip route-cache
 !
 interface Vlan3228
  description nat-228-bgp
+ bandwidth 2000000
  ip vrf forwarding nat
  ip address 10.30.228.22 255.255.255.0
  no ip route-cache
