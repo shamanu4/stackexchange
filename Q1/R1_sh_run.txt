@@ -217,7 +217,6 @@ interface Port-channel5
  switchport trunk encapsulation dot1q
  switchport trunk allowed vlan 30,31,33,3228
  switchport mode trunk
- bandwidth inherit 1000
 !
 interface Port-channel6
  description NAT-8 netext
