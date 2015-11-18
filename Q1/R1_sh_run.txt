@@ -1130,7 +1130,7 @@ router bgp 100
   neighbor 10.30.228.228 route-map NAT-IN in
   neighbor 10.30.228.228 route-map NAT-OUT out
   neighbor 10.30.228.228 dmzlink-bw
-  maximum-paths 5
+  maximum-paths eibgp 3
   no synchronization
   bgp router-id auto-assign
  exit-address-family
