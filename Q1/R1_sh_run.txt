@@ -1012,6 +1012,7 @@ router bgp 100
  bgp router-id Y.Y.105.129
  bgp log-neighbor-changes
  bgp bestpath as-path multipath-relax
+ bgp dmzlink-bw
  network X.X.64.0 mask 255.255.224.0
  network X.X.64.0 mask 255.255.255.0
  network X.X.65.0 mask 255.255.255.0
